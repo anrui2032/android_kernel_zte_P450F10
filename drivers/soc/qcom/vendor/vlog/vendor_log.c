@@ -30,6 +30,12 @@
 #include <linux/utsname.h>
 
 
+#include <linux/version.h>
+#if LINUX_VERSION_CODE>= KERNEL_VERSION(4,9,0)
+#define CONFIG_VENDOR_VLOG_V2
+#endif
+
+
 #define VLOG_MEMORY_ADDR_PROP "qcom,msm-imem-vlog_memory_addr"
 #define VLOG_MEMORY_SIZE_PROP "qcom,msm-imem-vlog_memory_size"
 #define VLOG_MEMORY_COOK_PROP "qcom,msm-imem-vlog_memory_cookie"
@@ -183,8 +189,9 @@ static int vlog_status_set(const char *val, struct kernel_param *kp)
 
 static int vendor_log_update_buffer_info(unsigned long addr,  size_t size)
 {
+#ifndef CONFIG_VENDOR_VLOG_V2
 	struct dma_attrs attrs;
-
+#endif
 	pr_info("vendor_log_update_buffer_info version %s\n", utsname()->release);
 	if (utsname()->release[0] >= LINUX_VERSION_ABOVE_FOUR) {
 		vlog_device.vlog_mem_info.data_ptr =
@@ -195,12 +202,16 @@ static int vendor_log_update_buffer_info(unsigned long addr,  size_t size)
 			return -ENOMEM;
 		}
 	} else {
+#ifndef CONFIG_VENDOR_VLOG_V2
 		init_dma_attrs(&attrs);
 		dma_set_attr(DMA_ATTR_SKIP_ZEROING, &attrs);
 
 		vlog_device.vlog_mem_info.data_ptr =
 				(unsigned char *)dma_remap(NULL, NULL, addr, size, &attrs);
-
+#else
+    vlog_device.vlog_mem_info.data_ptr = dma_remap(NULL, NULL,
+						addr, size, DMA_ATTR_SKIP_ZEROING);
+#endif
 		if (!vlog_device.vlog_mem_info.data_ptr) {
 			pr_err("%s: can not map the addr 0x%lx  error\n",
 				__func__, addr);

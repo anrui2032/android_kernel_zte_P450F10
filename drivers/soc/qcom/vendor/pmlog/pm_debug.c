@@ -37,7 +37,6 @@ static uint32_t showmodemsleep = 0;
 static uint32_t showmodemawake = 0;
 static uint32_t showmodemsleeporawake = 0;
 static uint32_t showphyslinktime = 0;
-
 static int msm_pm_debug_mask = 1;
 module_param_named(
 	debug_mask, msm_pm_debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP
@@ -79,7 +78,7 @@ static long screenontimebeforesuspend = 0;
 static bool screenofffirstime = true;
 static void update_screenon_time(bool lcdonoff)
 {
-	pr_info("[PM_V] turn LCD %s %s\n", lcdonoff ? "ON" : "OFF", screenofffirstime ? " first time":" ");
+	/*pr_info("[PM_V] turn LCD %s %s\n", lcdonoff ? "ON" : "OFF", screenofffirstime ? " first time":" ");*/
 	if (screenofffirstime) {
 		if (!lcdonoff)
 			screenofffirstime = false;
